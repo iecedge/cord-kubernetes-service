@@ -3,6 +3,7 @@
 ## Purpose ##
 
 The Kubernetes Service is responsible for two tasks:
+
 1. Monitoring Kubernetes for resources (primarily pods) that are created outside of XOS, and adding the state of those resources to the XOS data model.
 2. Providing a mechanism for XOS services to create Kubernetes resources using the XOS data model.
 
@@ -72,7 +73,7 @@ An XOS Service can leverage the Kubernetes Service to creates Kubernetes resourc
 
 Here is a short example that implements that creates a pod:
 
-```
+```python
 # Create a new Trust Domain for the demo
 t=TrustDomain(name="demo-trust", owner=KubernetesService.objects.first())
 t.save()
