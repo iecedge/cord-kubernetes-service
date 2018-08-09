@@ -9,6 +9,8 @@ message KubernetesService (Service){
 message KubernetesServiceInstance (ComputeServiceInstance){
      option verbose_name = "Kubernetes Service Instance";
      optional string pod_ip = 1 [max_length=32, db_index = False, null = True, blank = True, help_text = "IP address of pod"];
+     required bool need_event = 2 [default = False, blank = True, help_text = "True if a kafka event needs to be sent by the pull step"];
+     optional string last_event_sent = 3 [max_length=32, db_index = False, null = True, blank = True, choices = "(('created', 'CREATED'), ('updated', 'UPDATED'), ('deleted', 'DELETED'))", help_text = "Type of last event sent"];
 }
 
 message KubernetesData (XOSBase) {
