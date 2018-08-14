@@ -16,14 +16,14 @@
 
 name: kubernetes
 accessor:
-  username: xosadmin@opencord.org
-  password: "@/opt/xos/services/kubernetes/credentials/xosadmin@opencord.org"
+  username: "admin@opencord.org"
+  password: "letmein"
+  endpoint: xos-core:50051
 required_models:
   - KubernetesService
   - KubernetesServiceInstance
 dependency_graph: "/opt/xos/synchronizers/kubernetes/model-deps"
 steps_dir: "/opt/xos/synchronizers/kubernetes/steps"
 sys_dir: "/opt/xos/synchronizers/kubernetes/sys"
-#model_policies_dir: "/opt/xos/synchronizers/kubernetes/model_policies"
 models_dir: "/opt/xos/synchronizers/kubernetes/models"
 pull_steps_dir: "/opt/xos/synchronizers/kubernetes/pull_steps"
