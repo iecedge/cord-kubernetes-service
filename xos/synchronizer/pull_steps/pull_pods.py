@@ -219,7 +219,8 @@ class KubernetesServiceInstancePullStep(PullStep):
             return
 
         event = {"status": status,
-                 "name": xos_pod.name}
+                 "name": xos_pod.name,
+                 "producer": "k8s-sync"}
 
         if xos_pod.id:
             event["kubernetesserviceinstance_id"] = xos_pod.id

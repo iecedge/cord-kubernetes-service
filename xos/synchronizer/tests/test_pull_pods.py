@@ -414,6 +414,7 @@ class TestPullPods(unittest.TestCase):
 
             self.assertEqual(event["name"], "my-pod")
             self.assertEqual(event["status"], "created")
+            self.assertEqual(event["producer"], "k8s-sync")
             self.assertEqual(event["labels"], {"foo": "bar"})
             self.assertEqual(event["netinterfaces"], [{"name": "primary", "addresses": ["1.2.3.4"]}])
 
@@ -440,6 +441,7 @@ class TestPullPods(unittest.TestCase):
 
             self.assertEqual(event["name"], "my-pod")
             self.assertEqual(event["status"], "deleted")
+            self.assertEqual(event["producer"], "k8s-sync")
 
 if __name__ == '__main__':
     unittest.main()
