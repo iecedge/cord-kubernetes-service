@@ -12,8 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# docker build -t xosproject/kubernetes-synchronizer:candidate -f Dockerfile.synchronizer .
+
 # xosproject/kubernetes-synchronizer
-FROM cachengo/xos-synchronizer-base:2.0.0
+
+FROM cachengo/xos-synchronizer-base:master
 
 COPY xos/synchronizer /opt/xos/synchronizers/kubernetes
 COPY VERSION /opt/xos/synchronizers/kubernetes/

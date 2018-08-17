@@ -131,7 +131,7 @@ class KubernetesServiceInstancePullStep(PullStep):
             return None
 
         slice_name = controller.metadata.name
-        if hasattr(controller.metadata, "labels"):
+        if hasattr(controller.metadata, "labels") and controller.metadata.labels is not None:
             if "xos_slice_name" in controller.metadata.labels:
                 # Someone has labeled the controller with an xos slice name. Use it.
                 slice_name = controller.metadata.labels["xos_slice_name"]
@@ -198,7 +198,7 @@ class KubernetesServiceInstancePullStep(PullStep):
             # TODO(smbaker): Assumes all containers in a pod use the same image. Valid assumption for now?
             container = containers[0]
             if ":" in container.image:
-                (name, tag) = container.image.split(":")
+                (name, tag) = container.image.rsplit(":", 1)
             else:
                 # Is assuming a default necessary?
                 name = container.image
