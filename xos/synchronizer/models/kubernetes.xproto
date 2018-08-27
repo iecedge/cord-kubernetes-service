@@ -6,6 +6,14 @@ message KubernetesService (Service){
 
 }
 
+message KubernetesResourceInstance (XOSBase){
+     option verbose_name = "Kubernetes Resource Instance";
+     required string name = 1 [db_index = True, max_length = 200, content_type = "stripped", tosca_key=True, unique=True, help_text = "Name of ResourceInstance"];
+     required manytoone owner->Service:kubernetes_resource_instances = 2 [db_index = True, null = False, blank = False];
+     optional string resource_definition = 3 [help_text = "yaml blob"];
+     optional string kubectl_state = 4 [max_length=32, db_index = False, choices = "(('created', 'CREATED'), ('updated', 'UPDATED'), ('deleted', 'DELETED'))", help_text = "Most recent state of kubectl"];
+}
+
 message KubernetesServiceInstance (ComputeServiceInstance){
      option verbose_name = "Kubernetes Service Instance";
      optional string pod_ip = 1 [max_length=32, db_index = False, null = True, blank = True, help_text = "IP address of pod"];

@@ -29,6 +29,14 @@ RUN echo "c82c439bda07f29fd36f23552c4e763f  /usr/local/lib/python2.7/dist-packag
 COPY api_client.patch /tmp/api_client.patch
 RUN patch -d /usr/local/lib/python2.7/dist-packages/kubernetes/client < /tmp/api_client.patch
 
+ENV KUBECTL_VERSION "1.10.5"
+ENV KUBECTL_SHA256SUM "a9e7f82e516aa8a652bc485620483ea964eb940787cabf890d7eab96eaac294d"
+RUN curl -L -o /tmp/kubectl "https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl" \
+  && echo "$KUBECTL_SHA256SUM  /tmp/kubectl" | sha256sum -c - \
+  && mv /tmp/kubectl /usr/local/bin/kubectl \
+  && chmod a+x /usr/local/bin/kubectl \
+  && rm -f /tmp/kubectl
+
 WORKDIR "/opt/xos/synchronizers/kubernetes"
 
 # Label image
