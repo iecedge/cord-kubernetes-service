@@ -37,8 +37,13 @@ if os.path.isfile(mounted_config_file):
 else:
     Config.init(base_config_file, 'synchronizer-config-schema.yaml')
 
+from xoskafka import XOSKafkaProducer
+
 # prevent logging noise from k8s API calls
 logging.getLogger("kubernetes.client.rest").setLevel(logging.WARNING)
+
+# init kafka producer connection
+XOSKafkaProducer.init()
 
 synchronizer_path = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), "../../synchronizers/new_base")
