@@ -15,7 +15,7 @@
 # docker build -t xosproject/kubernetes-synchronizer:candidate -f Dockerfile.synchronizer .
 
 # xosproject/kubernetes-synchronizer
-FROM cachengo/xos-synchronizer-base:2.1.5
+FROM cachengo/xos-synchronizer-base:2.1.13
 
 COPY xos/synchronizer /opt/xos/synchronizers/kubernetes
 COPY VERSION /opt/xos/synchronizers/kubernetes/
