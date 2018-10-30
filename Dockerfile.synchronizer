@@ -15,7 +15,11 @@
 # docker build -t xosproject/kubernetes-synchronizer:candidate -f Dockerfile.synchronizer .
 
 # xosproject/kubernetes-synchronizer
-FROM cachengo/xos-synchronizer-base:2.1.13
+<<<<<<< HEAD
+FROM cachengo/xos-synchronizer-base:2.1.21
+=======
+FROM xosproject/xos-synchronizer-base:2.1.21
+>>>>>>> e3358df... SEBA-324 reverse field numbers for manytoone relations
 
 COPY xos/synchronizer /opt/xos/synchronizers/kubernetes
 COPY VERSION /opt/xos/synchronizers/kubernetes/

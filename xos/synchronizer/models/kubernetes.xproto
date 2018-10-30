@@ -22,7 +22,7 @@ message KubernetesServiceInstance (ComputeServiceInstance){
 message KubernetesData (XOSBase) {
     optional string name = 1 [max_length=256, db_index = False, null = False, blank = False, help_text = "Name of this data store" ];
     optional string data = 2 [db_index = False, null = True, blank = True, help_text = "Set of key,value pairs encoded as a json dictionary"];
-    required manytoone trust_domain->TrustDomain:kubernetes_configmaps = 3 [db_index = True, null = False, blank = False, help_text = "Trust domain this data resides in"];
+    required manytoone trust_domain->TrustDomain:kubernetes_configmaps = 3:1003 [db_index = True, null = False, blank = False, help_text = "Trust domain this data resides in"];
 }
 
 message KubernetesConfigMap (KubernetesData) {
@@ -32,15 +32,15 @@ message KubernetesSecret (KubernetesData) {
 }
 
 message KubernetesSecretVolumeMount (XOSBase) {
-    required manytoone secret->KubernetesSecret:kubernetes_secret_volume_mounts = 1 [db_index = True, null = False, blank = False, help_text = "Secret to mount"];
+    required manytoone secret->KubernetesSecret:kubernetes_secret_volume_mounts = 1:1001 [db_index = True, null = False, blank = False, help_text = "Secret to mount"];
     required manytoone service_instance->KubernetesServiceInstance:kubernetes_secret_volume_mounts = 2 [db_index = True, null = False, blank = False, help_text = "Service instance in which to mount secret"];
     optional string mount_path = 3 [max_length=256, db_index = False, null = False, blank = False, help_text = "Path to mount secret"];
     optional string sub_path = 4 [max_length=1024, db_index = False, null = True, blank = True, help_text = "Subpath within secret to mount"];
 }
 
 message KubernetesConfigVolumeMount (XOSBase) {
-    required manytoone config->KubernetesConfigMap:kubernetes_config_voume_mounts = 1 [db_index = True, null = False, blank = False, help_text = "Config to mount"];
-    required manytoone service_instance->KubernetesServiceInstance:kubernetes_config_volume_mounts = 2 [db_index = True, null = False, blank = False, help_text = "Service instance in which to mount config"];
+    required manytoone config->KubernetesConfigMap:kubernetes_config_voume_mounts = 1:1001 [db_index = True, null = False, blank = False, help_text = "Config to mount"];
+    required manytoone service_instance->KubernetesServiceInstance:kubernetes_config_volume_mounts = 2:1001 [db_index = True, null = False, blank = False, help_text = "Service instance in which to mount config"];
     optional string mount_path = 3 [max_length=1024, db_index = False, null = False, blank = False, help_text = "Path to mount secret"];
     optional string sub_path = 4 [max_length=1024, db_index = False, null = True, blank = True, help_text = "Subpath within secret to mount"];
 }
