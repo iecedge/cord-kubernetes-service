@@ -62,11 +62,14 @@ class SyncService(SyncStep):
         if (not deletion):
             for model in models[:]:
                 if not self.get_trust_domain(model):
-                    log.info("Unable to determine Trust Domain for service %s. Ignoring." % model.name)
+                    # If this happens, then either the Service has no Slices, or it does have slices but none of
+                    # those slices are associated with a TrustDomain. Assume the developer has done this on purpose
+                    # and ignore the Service.
+                    log.debug("Unable to determine Trust Domain for service %s. Ignoring." % model.name)
                     models.remove(model)
                 elif not model.serviceports.exists():
                     # If there are not ServicePorts, then there's not much for us to do at this time...
-                    log.info("Service %s is not interesting. Ignoring." % model.name)
+                    log.debug("Service %s has no serviceports. Ignoring." % model.name)
                     models.remove(model)
 
         return models

@@ -94,7 +94,9 @@ class KubernetesServiceInstancePullStep(PullStep):
                 continue
             owner = self.read_obj_kind(owner_reference.kind, owner_reference.name, trust_domain)
             if not owner:
-                log.warning("failed to fetch owner", owner_reference=owner_reference)
+                # Failed to fetch the owner, probably because the owner's kind is something we do not understand. An
+                # example is the etcd-cluser pod, which is owned by a deployment of kind "EtcdCluster".
+                log.debug("failed to fetch owner", owner_reference=owner_reference)
                 continue
             controller = self.get_controller_from_obj(owner, trust_domain, depth+1)
             if controller:
@@ -244,7 +246,9 @@ class KubernetesServiceInstancePullStep(PullStep):
                 if not k in xos_pods_by_name:
                     trust_domain = self.get_trustdomain_from_pod(pod, owner_service=kubernetes_service)
                     if not trust_domain:
-                        log.warning("Unable to determine trust_domain for %s" % k)
+                        # All kubernetes pods should belong to a namespace. If we can't find the namespace, then
+                        # something is very wrong in K8s.
+                        log.warning("Unable to determine trust_domain for pod %s. Ignoring." % k)
                         continue
 
                     principal = self.get_principal_from_pod(pod, trust_domain)
@@ -252,7 +256,10 @@ class KubernetesServiceInstancePullStep(PullStep):
                     image = self.get_image_from_pod(pod)
 
                     if not slice:
-                        log.warning("Unable to determine slice for %s" % k)
+                        # We could get here if the pod doesn't have a controller, or if the controller is of a kind
+                        # that we don't understand (such as the Etcd controller). If so, the pod is not something we
+                        # are interested in.
+                        log.debug("Unable to determine slice for pod %s. Ignoring." % k)
                         continue
 
                     xos_pod = KubernetesServiceInstance(name=k,
