@@ -19,8 +19,9 @@
     Synchronize Principals. Principals correspond roughly to Kubernetes ServiceAccounts.
 """
 
-from synchronizers.new_base.syncstep import SyncStep
-from synchronizers.new_base.modelaccessor import Principal
+
+from xossynchronizer.steps.syncstep import SyncStep
+from xossynchronizer.modelaccessor import Principal
 
 from xosconfig import Config
 from multistructlog import create_logger

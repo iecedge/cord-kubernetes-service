@@ -20,8 +20,8 @@
 
 import json
 
-from synchronizers.new_base.pullstep import PullStep
-from synchronizers.new_base.modelaccessor import KubernetesServiceInstance, KubernetesService, Slice, Principal, \
+from xossynchronizer.pull_steps.pullstep import PullStep
+from xossynchronizer.modelaccessor import KubernetesServiceInstance, KubernetesService, Slice, Principal, \
                                                  TrustDomain, Site, Image
 
 from xosconfig import Config

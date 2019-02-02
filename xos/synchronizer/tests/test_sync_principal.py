@@ -35,7 +35,9 @@ class TestSyncPrincipal(unittest.TestCase):
     def setUp(self):
         self.unittest_setup = setup_sync_unit_test(os.path.abspath(os.path.dirname(os.path.realpath(__file__))),
                                                    globals(),
-                                                   [("kubernetes-service", "kubernetes.proto")] )
+                                                   [("kubernetes-service", "kubernetes.xproto")] )
+
+        self.model_accessor = self.unittest_setup["model_accessor"]
 
         sys.path.append(os.path.join(os.path.abspath(os.path.dirname(os.path.realpath(__file__))), "../steps"))
 
@@ -52,7 +54,7 @@ class TestSyncPrincipal(unittest.TestCase):
         with patch.object(self.step_class, "init_kubernetes_client", new=fake_init_kubernetes_client):
             xos_principal = Principal(name="test-principal", trust_domain=self.trust_domain)
 
-            step = self.step_class()
+            step = self.step_class(model_accessor = self.model_accessor)
             sa = MagicMock()
             step.v1core.read_namespaced_service_account.return_value = sa
 
@@ -65,7 +67,7 @@ class TestSyncPrincipal(unittest.TestCase):
         with patch.object(self.step_class, "init_kubernetes_client", new=fake_init_kubernetes_client):
             xos_principal = Principal(name="test-principal", trust_domain=self.trust_domain)
 
-            step = self.step_class()
+            step = self.step_class(model_accessor = self.model_accessor)
             step.v1core.read_namespaced_service_account.side_effect = step.ApiException(status=404)
 
             result = step.get_service_account(xos_principal)
@@ -76,7 +78,7 @@ class TestSyncPrincipal(unittest.TestCase):
         with patch.object(self.step_class, "init_kubernetes_client", new=fake_init_kubernetes_client):
             xos_principal = Principal(name="test-principal", trust_domain=self.trust_domain)
 
-            step = self.step_class()
+            step = self.step_class(model_accessor = self.model_accessor)
             step.v1core.read_namespaced_service_account.side_effect = step.ApiException(status=404)
 
             sa = MagicMock()
@@ -92,7 +94,7 @@ class TestSyncPrincipal(unittest.TestCase):
         with patch.object(self.step_class, "init_kubernetes_client", new=fake_init_kubernetes_client):
             xos_principal = Principal(name="test-principal", trust_domain=self.trust_domain)
 
-            step = self.step_class()
+            step = self.step_class(model_accessor = self.model_accessor)
             k8s_sa = MagicMock()
             step.v1core.read_namespaced_service_account.return_value = k8s_sa
 

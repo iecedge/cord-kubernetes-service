@@ -19,8 +19,8 @@
     Synchronize TrustDomain. TrustDomains correspond roughly to Kubernetes namespaces.
 """
 
-from synchronizers.new_base.syncstep import SyncStep
-from synchronizers.new_base.modelaccessor import TrustDomain
+from xossynchronizer.steps.syncstep import SyncStep
+from xossynchronizer.modelaccessor import TrustDomain
 
 from xosconfig import Config
 from multistructlog import create_logger

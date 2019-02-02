@@ -20,8 +20,8 @@
     NodePort to expose ports.
 """
 
-from synchronizers.new_base.syncstep import SyncStep
-from synchronizers.new_base.modelaccessor import Service
+from xossynchronizer.steps.syncstep import SyncStep
+from xossynchronizer.modelaccessor import Service
 
 from xosconfig import Config
 from multistructlog import create_logger

@@ -35,9 +35,10 @@ class TestSyncKubernetesResourceInstance(unittest.TestCase):
     def setUp(self):
         self.unittest_setup = setup_sync_unit_test(os.path.abspath(os.path.dirname(os.path.realpath(__file__))),
                                                    globals(),
-                                                   [("kubernetes-service", "kubernetes.proto")] )
+                                                   [("kubernetes-service", "kubernetes.xproto")] )
 
         self.MockObjectList = self.unittest_setup["MockObjectList"]
+        self.model_accessor = self.unittest_setup["model_accessor"]
 
         sys.path.append(os.path.join(os.path.abspath(os.path.dirname(os.path.realpath(__file__))), "../steps"))
 
@@ -57,7 +58,7 @@ class TestSyncKubernetesResourceInstance(unittest.TestCase):
 
         mock_popen.return_value = proc
 
-        step = self.step_class()
+        step = self.step_class(model_accessor = self.model_accessor)
         step.run_kubectl("create", "foo")
 
         mock_popen.assert_called()
@@ -70,7 +71,7 @@ class TestSyncKubernetesResourceInstance(unittest.TestCase):
 
         mock_popen.return_value = proc
 
-        step = self.step_class()
+        step = self.step_class(model_accessor = self.model_accessor)
         with self.assertRaises(Exception) as e:
           step.run_kubectl("create", "foo")
 
@@ -82,7 +83,7 @@ class TestSyncKubernetesResourceInstance(unittest.TestCase):
 
             run_kubectl.return_value = None
 
-            step = self.step_class()
+            step = self.step_class(model_accessor = self.model_accessor)
             step.sync_record(xos_ri)
 
             run_kubectl.assert_called_with("apply", "foo")
@@ -95,7 +96,7 @@ class TestSyncKubernetesResourceInstance(unittest.TestCase):
 
             run_kubectl.return_value = None
 
-            step = self.step_class()
+            step = self.step_class(model_accessor = self.model_accessor)
             step.sync_record(xos_ri)
 
             run_kubectl.assert_called_with("apply", "foo")
@@ -108,7 +109,7 @@ class TestSyncKubernetesResourceInstance(unittest.TestCase):
 
             run_kubectl.return_value = None
 
-            step = self.step_class()
+            step = self.step_class(model_accessor = self.model_accessor)
             step.delete_record(xos_ri)
 
             run_kubectl.assert_called_with("delete", "foo")
@@ -122,7 +123,7 @@ class TestSyncKubernetesResourceInstance(unittest.TestCase):
 
             run_kubectl.return_value = None
 
-            step = self.step_class()
+            step = self.step_class(model_accessor = self.model_accessor)
             step.delete_record(xos_ri)
 
             run_kubectl.assert_not_called()

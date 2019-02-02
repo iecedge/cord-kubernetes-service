@@ -27,6 +27,7 @@ import importlib
 import logging
 import os
 import sys
+from xossynchronizer import Synchronizer
 from xosconfig import Config
 
 base_config_file = os.path.abspath(os.path.dirname(os.path.realpath(__file__)) + '/config.yaml')
@@ -45,9 +46,4 @@ logging.getLogger("kubernetes.client.rest").setLevel(logging.WARNING)
 # init kafka producer connection
 XOSKafkaProducer.init()
 
-synchronizer_path = os.path.join(os.path.dirname(
-    os.path.realpath(__file__)), "../../synchronizers/new_base")
-sys.path.append(synchronizer_path)
-mod = importlib.import_module("xos-synchronizer")
-mod.main()
-
+Synchronizer().run()

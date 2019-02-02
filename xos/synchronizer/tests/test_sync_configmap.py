@@ -35,7 +35,9 @@ class TestSyncConfigmap(unittest.TestCase):
     def setUp(self):
         self.unittest_setup = setup_sync_unit_test(os.path.abspath(os.path.dirname(os.path.realpath(__file__))),
                                                    globals(),
-                                                   [("kubernetes-service", "kubernetes.proto")] )
+                                                   [("kubernetes-service", "kubernetes.xproto")] )
+
+        self.model_accessor = self.unittest_setup["model_accessor"]
 
         sys.path.append(os.path.join(os.path.abspath(os.path.dirname(os.path.realpath(__file__))), "../steps"))
 
@@ -52,7 +54,7 @@ class TestSyncConfigmap(unittest.TestCase):
         with patch.object(self.step_class, "init_kubernetes_client", new=fake_init_kubernetes_client):
             configmap = KubernetesConfigMap(trust_domain=self.trust_domain, name="test-configmap")
 
-            step = self.step_class()
+            step = self.step_class(model_accessor = self.model_accessor)
             map = MagicMock()
             step.v1core.read_namespaced_config_map.return_value = map
 
@@ -65,7 +67,7 @@ class TestSyncConfigmap(unittest.TestCase):
         with patch.object(self.step_class, "init_kubernetes_client", new=fake_init_kubernetes_client):
             configmap = KubernetesConfigMap(trust_domain=self.trust_domain, name="test-configmap")
 
-            step = self.step_class()
+            step = self.step_class(model_accessor = self.model_accessor)
             map = MagicMock()
             step.v1core.read_namespaced_config_map.side_effect = step.ApiException(status=404)
 
@@ -78,7 +80,7 @@ class TestSyncConfigmap(unittest.TestCase):
             data = {"foo": "bar"}
             configmap = KubernetesConfigMap(trust_domain=self.trust_domain, name="test-configmap", data=json.dumps(data))
 
-            step = self.step_class()
+            step = self.step_class(model_accessor = self.model_accessor)
             step.v1core.read_namespaced_config_map.side_effect = step.ApiException(status=404)
 
             map = MagicMock()
@@ -99,7 +101,7 @@ class TestSyncConfigmap(unittest.TestCase):
             orig_map.data = {"foo": "not_bar"}
             orig_map.metadata.self_link = "1234"
 
-            step = self.step_class()
+            step = self.step_class(model_accessor = self.model_accessor)
             step.v1core.read_namespaced_config_map.return_value = orig_map
 
             new_map = MagicMock()
@@ -127,7 +129,7 @@ class TestSyncConfigmap(unittest.TestCase):
             orig_map.data = {"foo": "not_bar"}
             orig_map.metadata.self_link = "1234"
 
-            step = self.step_class()
+            step = self.step_class(model_accessor = self.model_accessor)
             step.v1core.read_namespaced_config_map.return_value = orig_map
 
             step.delete_record(configmap)

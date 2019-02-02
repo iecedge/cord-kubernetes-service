@@ -29,7 +29,7 @@ class TestPullPods(unittest.TestCase):
     def setUp(self):
         self.unittest_setup = setup_sync_unit_test(os.path.abspath(os.path.dirname(os.path.realpath(__file__))),
                                                    globals(),
-                                                   [("kubernetes-service", "kubernetes.proto")] )
+                                                   [("kubernetes-service", "kubernetes.xproto")] )
         self.mockxoskafka = MagicMock()
 
         modules = {

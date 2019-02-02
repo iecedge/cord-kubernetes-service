@@ -35,7 +35,9 @@ class TestSyncTrustDomain(unittest.TestCase):
     def setUp(self):
         self.unittest_setup = setup_sync_unit_test(os.path.abspath(os.path.dirname(os.path.realpath(__file__))),
                                                    globals(),
-                                                   [("kubernetes-service", "kubernetes.proto")] )
+                                                   [("kubernetes-service", "kubernetes.xproto")] )
+
+        self.model_accessor = self.unittest_setup["model_accessor"]
 
         sys.path.append(os.path.join(os.path.abspath(os.path.dirname(os.path.realpath(__file__))), "../steps"))
 
@@ -51,7 +53,7 @@ class TestSyncTrustDomain(unittest.TestCase):
         with patch.object(self.step_class, "init_kubernetes_client", new=fake_init_kubernetes_client):
             xos_trustdomain = TrustDomain(name="test-trust")
 
-            step = self.step_class()
+            step = self.step_class(model_accessor=self.model_accessor)
             td = MagicMock()
             step.v1core.read_namespace.return_value = td
 
@@ -64,7 +66,7 @@ class TestSyncTrustDomain(unittest.TestCase):
         with patch.object(self.step_class, "init_kubernetes_client", new=fake_init_kubernetes_client):
             xos_trustdomain = TrustDomain(name="test-trust")
 
-            step = self.step_class()
+            step = self.step_class(model_accessor=self.model_accessor)
             step.v1core.read_namespace.side_effect = step.ApiException(status=404)
 
             result = step.get_namespace(xos_trustdomain)
@@ -75,7 +77,7 @@ class TestSyncTrustDomain(unittest.TestCase):
         with patch.object(self.step_class, "init_kubernetes_client", new=fake_init_kubernetes_client):
             xos_trustdomain = TrustDomain(name="test-trust")
 
-            step = self.step_class()
+            step = self.step_class(model_accessor=self.model_accessor)
             step.v1core.read_namespace.side_effect = step.ApiException(status=404)
 
             td = MagicMock()
@@ -91,7 +93,7 @@ class TestSyncTrustDomain(unittest.TestCase):
         with patch.object(self.step_class, "init_kubernetes_client", new=fake_init_kubernetes_client):
             xos_trustdomain = TrustDomain(name="test-trust")
 
-            step = self.step_class()
+            step = self.step_class(model_accessor=self.model_accessor)
             td = MagicMock()
             step.v1core.read_namespace.return_value = td
 

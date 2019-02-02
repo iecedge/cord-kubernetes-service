@@ -35,7 +35,9 @@ class TestSyncSecret(unittest.TestCase):
     def setUp(self):
         self.unittest_setup = setup_sync_unit_test(os.path.abspath(os.path.dirname(os.path.realpath(__file__))),
                                                    globals(),
-                                                   [("kubernetes-service", "kubernetes.proto")] )
+                                                   [("kubernetes-service", "kubernetes.xproto")] )
+
+        self.model_accessor = self.unittest_setup["model_accessor"]
 
         sys.path.append(os.path.join(os.path.abspath(os.path.dirname(os.path.realpath(__file__))), "../steps"))
 
@@ -52,7 +54,7 @@ class TestSyncSecret(unittest.TestCase):
         with patch.object(self.step_class, "init_kubernetes_client", new=fake_init_kubernetes_client):
             xos_secret = KubernetesSecret(trust_domain=self.trust_domain, name="test-secret")
 
-            step = self.step_class()
+            step = self.step_class(model_accessor = self.model_accessor)
             secret = MagicMock()
             step.v1core.read_namespaced_secret.return_value = secret
 
@@ -65,7 +67,7 @@ class TestSyncSecret(unittest.TestCase):
         with patch.object(self.step_class, "init_kubernetes_client", new=fake_init_kubernetes_client):
             xos_secret = KubernetesSecret(trust_domain=self.trust_domain, name="test-secret")
 
-            step = self.step_class()
+            step = self.step_class(model_accessor = self.model_accessor)
             secret = MagicMock()
             step.v1core.read_namespaced_secret.side_effect = step.ApiException(status=404)
 
@@ -78,7 +80,7 @@ class TestSyncSecret(unittest.TestCase):
             data = {"foo": "bar"}
             xos_secret = KubernetesSecret(trust_domain=self.trust_domain, name="test-secret", data=json.dumps(data))
 
-            step = self.step_class()
+            step = self.step_class(model_accessor = self.model_accessor)
             step.v1core.read_namespaced_secret.side_effect = step.ApiException(status=404)
 
             secret = MagicMock()
@@ -99,7 +101,7 @@ class TestSyncSecret(unittest.TestCase):
             orig_secret.data = {"foo": "not_bar"}
             orig_secret.metadata.self_link = "1234"
 
-            step = self.step_class()
+            step = self.step_class(model_accessor = self.model_accessor)
             step.v1core.read_namespaced_secret.return_value = orig_secret
 
             new_secret = MagicMock()
@@ -127,7 +129,7 @@ class TestSyncSecret(unittest.TestCase):
             orig_secret.data = {"foo": "not_bar"}
             orig_secret.metadata.self_link = "1234"
 
-            step = self.step_class()
+            step = self.step_class(model_accessor = self.model_accessor)
             step.v1core.read_namespaced_secret.return_value = orig_secret
 
             step.delete_record(xos_secret)

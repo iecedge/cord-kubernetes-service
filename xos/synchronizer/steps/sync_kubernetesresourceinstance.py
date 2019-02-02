@@ -24,8 +24,8 @@
 import os
 import subprocess
 import tempfile
-from synchronizers.new_base.syncstep import SyncStep
-from synchronizers.new_base.modelaccessor import KubernetesResourceInstance
+from xossynchronizer.steps.syncstep import SyncStep
+from xossynchronizer.modelaccessor import KubernetesResourceInstance
 
 from xosconfig import Config
 from multistructlog import create_logger

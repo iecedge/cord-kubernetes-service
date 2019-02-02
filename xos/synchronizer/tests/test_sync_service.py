@@ -35,7 +35,9 @@ class TestSyncService(unittest.TestCase):
     def setUp(self):
         self.unittest_setup = setup_sync_unit_test(os.path.abspath(os.path.dirname(os.path.realpath(__file__))),
                                                    globals(),
-                                                   [("kubernetes-service", "kubernetes.proto")] )
+                                                   [("kubernetes-service", "kubernetes.xproto")] )
+
+        self.model_accessor = self.unittest_setup["model_accessor"]
 
         sys.path.append(os.path.join(os.path.abspath(os.path.dirname(os.path.realpath(__file__))), "../steps"))
 
@@ -56,7 +58,7 @@ class TestSyncService(unittest.TestCase):
             xos_slice = Slice(service=xos_service, trust_domain=self.trust_domain)
             xos_service.slices = self.MockObjectList([xos_slice])
 
-            step = self.step_class()
+            step = self.step_class(model_accessor = self.model_accessor)
             service = MagicMock()
             step.v1core.read_namespaced_service.return_value = service
 
@@ -71,7 +73,7 @@ class TestSyncService(unittest.TestCase):
             xos_slice = Slice(service=xos_service, trust_domain=self.trust_domain)
             xos_service.slices = self.MockObjectList([xos_slice])
 
-            step = self.step_class()
+            step = self.step_class(model_accessor = self.model_accessor)
             step.v1core.read_namespaced_service.side_effect = step.ApiException(status=404)
 
             result = step.get_service(xos_service, self.trust_domain.name)
@@ -88,7 +90,7 @@ class TestSyncService(unittest.TestCase):
                                           protocol="TCP")
             xos_service.serviceports=self.MockObjectList([xos_serviceport])
 
-            step = self.step_class()
+            step = self.step_class(model_accessor = self.model_accessor)
             step.v1core.read_namespaced_service.side_effect = step.ApiException(status=404)
 
             service = MagicMock()
@@ -110,7 +112,7 @@ class TestSyncService(unittest.TestCase):
                                           protocol="TCP")
             xos_service.serviceports=self.MockObjectList([xos_serviceport])
 
-            step = self.step_class()
+            step = self.step_class(model_accessor = self.model_accessor)
             k8s_service = MagicMock()
             step.v1core.read_namespaced_service.return_value = k8s_service
             step.v1core.delete_namespaced_service.return_value = None
