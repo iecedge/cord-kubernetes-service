@@ -20,8 +20,8 @@
 """
 
 import json
-from synchronizers.new_base.syncstep import SyncStep
-from synchronizers.new_base.modelaccessor import KubernetesConfigMap
+from xossynchronizer.steps.syncstep import SyncStep
+from xossynchronizer.modelaccessor import KubernetesConfigMap
 
 from xosconfig import Config
 from multistructlog import create_logger

@@ -35,9 +35,10 @@ class TestSyncKubernetesServiceInstance(unittest.TestCase):
     def setUp(self):
         self.unittest_setup = setup_sync_unit_test(os.path.abspath(os.path.dirname(os.path.realpath(__file__))),
                                                    globals(),
-                                                   [("kubernetes-service", "kubernetes.proto")] )
+                                                   [("kubernetes-service", "kubernetes.xproto")] )
 
         self.MockObjectList = self.unittest_setup["MockObjectList"]
+        self.model_accessor = self.unittest_setup["model_accessor"]
 
         sys.path.append(os.path.join(os.path.abspath(os.path.dirname(os.path.realpath(__file__))), "../steps"))
 
@@ -57,7 +58,7 @@ class TestSyncKubernetesServiceInstance(unittest.TestCase):
         with patch.object(self.step_class, "init_kubernetes_client", new=fake_init_kubernetes_client):
             xos_si = KubernetesServiceInstance(name="test-instance", slice=self.slice)
 
-            step = self.step_class()
+            step = self.step_class(model_accessor = self.model_accessor)
             pod = MagicMock()
             step.v1core.read_namespaced_pod.return_value = pod
 
@@ -70,7 +71,7 @@ class TestSyncKubernetesServiceInstance(unittest.TestCase):
         with patch.object(self.step_class, "init_kubernetes_client", new=fake_init_kubernetes_client):
             xos_si = KubernetesServiceInstance(name="test-instance", slice=self.slice)
 
-            step = self.step_class()
+            step = self.step_class(model_accessor = self.model_accessor)
             step.v1core.read_namespaced_pod.side_effect = step.ApiException(status=404)
 
             result = step.get_pod(xos_si)
@@ -83,7 +84,7 @@ class TestSyncKubernetesServiceInstance(unittest.TestCase):
             xos_si.kubernetes_config_volume_mounts = self.MockObjectList([])
             xos_si.kubernetes_secret_volume_mounts = self.MockObjectList([])
 
-            step = self.step_class()
+            step = self.step_class(model_accessor = self.model_accessor)
             step.v1core.read_namespaced_pod.side_effect = step.ApiException(status=404)
 
             pod = MagicMock()
@@ -101,7 +102,7 @@ class TestSyncKubernetesServiceInstance(unittest.TestCase):
             xos_si.kubernetes_config_volume_mounts = self.MockObjectList([])
             xos_si.kubernetes_secret_volume_mounts = self.MockObjectList([])
 
-            step = self.step_class()
+            step = self.step_class(model_accessor = self.model_accessor)
             pod = MagicMock()
             step.v1core.read_namespaced_pod.return_value = pod
 

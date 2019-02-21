@@ -1,11 +1,10 @@
 # Kubernetes Service #
 
-## Purpose ##
-
-The Kubernetes Service is responsible for two tasks:
+The Kubernetes Service is responsible for three tasks:
 
 1. Monitoring Kubernetes for resources (primarily pods) that are created outside of XOS, and adding the state of those resources to the XOS data model.
-2. Providing a mechanism for XOS services to create Kubernetes resources using the XOS data model.
+2. Publishing events to `kafka` when Kubernetes resource state changes.
+3. Providing a mechanism for XOS services to create Kubernetes resources using the XOS data model.
 
 The Kubernetes Service supports "joint management" of Kubernetes resources. Some resources are created outside of XOS, for example by Helm. Other resources may be created inside of XOS. All of these resources are inventoried and visible in the XOS data model, regardless of how they were created.
 
@@ -30,10 +29,13 @@ The following models are supported by the Kubernetes Service:
     - `controller_replica_count`. For controllers that are able to manage replicas, a count of the desired number of replicas.
 - `KubernetesServiceInstance`. This model corresponds directly to a Kubernetes pod.
     - `name`. Name of the pod.
-    - `owner`. Service that owns this `ServiceInstance`, in this case, an instance of the `KubernetesService` model. 
+    - `owner`. Service that owns this `ServiceInstance`, in this case, an instance of the `KubernetesService` model.
     - `slice`. Relation to the `Slice` that manages this pod.
     - `image`. Relation to the `Image` that is used by this pod.
     - `pod_ip`. IP address assigned by Kubernetes. Read-only.
+- `KubernetesResourceInstance`. This model holds an arbitrary blob of kubernetes yaml that defines one or more resources. The purpose is to provide an escape hatch in the `Kubernetes Service` to allow resources to be created and destroyed that aren't directly modeled.
+    - `resource_definition`. Yaml declaration of the resource.
+    - `kubectl_state`. [`CREATED` | `UPDATED` | `DELETED`]. Most recent action taken using `kubectl` for this resource.
 - `KubernetesConfigMap`. This model corresponds directly to a Kubernetes ConfigMap. It stores a named set of (name, value) pairs.
     - `name`. Name of this ConfigMap.
     - `trust_domain`. TrustDomain in which this ConfigMap resides.
@@ -56,13 +58,9 @@ The following models are supported by the Kubernetes Service:
     - `name`. Name of the service.
 - `ServicePort`. ServicePort maps a port contained in the Service's pods to an external port that is visible on nodes. Currently this is implemented within the Kubernetes Service as a Kubernetes NodePort, though additional implementations (LoadBalancer, etc) will become available in the future.
 
-## Pull Steps ##
+## Example Python - Creating Kubernetes Objects in XOS ##
 
-The Kubernetes synchronizer implements a Pull Step that will look for externally-created pods and create objects in the XOS data model. The primary object created is `KubernetesServiceInstance`, with one of these objects created for each pod. Dependent objects will be created as necessary. For example, since the pod likely belongs to a Kubernetes controller, then a `Slice` will automatically be created. Since the `Slice` needs to be located within a `TrustDomain`, then a `TrustDomain` will automatically be created. 
-
-## Creating Kubernetes Objects in XOS ##
-
-An XOS Service can leverage the Kubernetes Service to creates Kubernetes resources on behalf of the XOS Service. An example of this is a `SimpleExampleService` service. To create a Kubernetes Service, it's suggested you create the following XOS Objects:
+An XOS Service can leverage the Kubernetes Service to create Kubernetes resources on behalf of the XOS Service. An example of this is the `SimpleExampleService` service. To create a Kubernetes-based Service, it's suggested you create the following XOS Objects:
 
 - `TrustDomain`
 - `Slice`
@@ -71,7 +69,7 @@ An XOS Service can leverage the Kubernetes Service to creates Kubernetes resourc
 - `KubernetesConfigMap` and/or `KubernetesSecret`. Optional, if the pod requires configuration.
 - `KubernetesConfigMapVolumeMount` and/or `KubernetesSecretVolumeMount`. Optional, if the pod requires configuration.
 
-Here is a short example that implements that creates a pod:
+Here is a short example that creates a pod:
 
 ```python
 # Create a new Trust Domain for the demo
@@ -94,3 +92,31 @@ s.save()
 i=KubernetesServiceInstance(name="demo-pod", slice=s, image=img, owner=KubernetesService.objects.first(), xos_managed=True)
 i.save()
 ```
+
+## Integration with other Services ##
+
+The `Kubernetes Service` is an infrastructure service that may be leveraged by other services. A potential point of integration would be inside of a model policy, where a service could create a `KubernetesServiceInstance` to implement compute resources on behalf of the service. `SimpleExampleService` demonstrates this technique.
+
+As the `Kubernetes Service` publishes events pertaining to the lifecycle of pods, other services are free to listen to these events and take service-specific action. For example `ONOS Service` and `vOLT Service` both watch for container restart events and use those events as a trigger to re-push state.
+
+## Synchronizer Workflows ##
+
+### Sync Steps ###
+
+Sync steps are implemented for the following models, and will create/update/delete the corresponding resources in Kubernetes, using the `Kubernetes API`:
+
+- `KubernetesConfigMap` --> `ConfigMap`
+- `KubernetesSecret` --> `Secret`
+- `KubernetesServiceInstace` --> `Pod`
+- `Principal` --> `ServiceAccount`
+- `Service` --> `Service`
+- `TrustDomain` --> `Namespace`
+
+A sync step is implemented for `KubernetesResourceInstance` that uses a subprocess to execute `kubectl` to create or delete the yaml blob contained in a `KubernetesResourceInstance`.
+
+### Pull Steps ###
+
+The Kubernetes synchronizer implements a Pull Step that will look for externally-created pods and create objects in the XOS data model. The primary object created is `KubernetesServiceInstance`, with one of these objects created for each pod. Dependent objects will be created as necessary. For example, since the pod likely belongs to a Kubernetes controller, then a `Slice` will automatically be created. Since the `Slice` needs to be located within a `TrustDomain`, then a `TrustDomain` will automatically be created.
+
+The pull step generates `Kafka` events when it notices pods are created or destroyed.
+

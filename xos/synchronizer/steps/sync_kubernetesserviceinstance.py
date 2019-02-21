@@ -23,8 +23,8 @@
     container and uses one image.
 """
 
-from synchronizers.new_base.syncstep import SyncStep
-from synchronizers.new_base.modelaccessor import KubernetesServiceInstance
+from xossynchronizer.steps.syncstep import SyncStep
+from xossynchronizer.modelaccessor import KubernetesServiceInstance
 
 from xosconfig import Config
 from multistructlog import create_logger

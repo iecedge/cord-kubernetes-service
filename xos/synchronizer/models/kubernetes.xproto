@@ -6,36 +6,124 @@ message KubernetesService (Service){
 
 }
 
+message KubernetesResourceInstance (ServiceInstance){
+     option verbose_name = "Kubernetes Resource Instance";
+     option description = "An opaque-to-xos blob of yaml that is passed directly to kubectl";
+
+     optional string resource_definition = 3 [
+         help_text = "yaml containing kubernetes resources",
+         max_length = 65535];
+     optional string kubectl_state = 4 [
+         help_text = "Most recent kubectl action completed by synchronizer",
+         choices = "(('created', 'CREATED'), ('updated', 'UPDATED'), ('deleted', 'DELETED'))",
+         db_index = False,
+         feedback_state = True,
+         max_length = 32];
+}
+
 message KubernetesServiceInstance (ComputeServiceInstance){
      option verbose_name = "Kubernetes Service Instance";
-     optional string pod_ip = 1 [max_length=32, db_index = False, null = True, blank = True, help_text = "IP address of pod"];
-     required bool need_event = 2 [default = False, blank = True, help_text = "True if a kafka event needs to be sent by the pull step"];
-     optional string last_event_sent = 3 [max_length=32, db_index = False, null = True, blank = True, choices = "(('created', 'CREATED'), ('updated', 'UPDATED'), ('deleted', 'DELETED'))", help_text = "Type of last event sent"];
+     option description = "A ComputeServiceInstance in kubernetes, usually in the form of a pod";
+
+     optional string pod_ip = 1 [
+         help_text = "IP address of pod",
+         blank = True,
+         db_index = False,
+         max_length=32,
+         null = True];
+     required bool need_event = 2 [
+         blank = True,
+         help_text = "True if a kafka event needs to be sent by the pull step",
+         default = False];
+     optional string last_event_sent = 3 [
+         help_text = "Type of last event sent",
+         blank = True,
+         choices = "(('created', 'CREATED'), ('updated', 'UPDATED'), ('deleted', 'DELETED'))",
+         db_index = False,
+         max_length=32,
+         null = True];
 }
 
 message KubernetesData (XOSBase) {
-    optional string name = 1 [max_length=256, db_index = False, null = False, blank = False, help_text = "Name of this data store" ];
-    optional string data = 2 [db_index = False, null = True, blank = True, help_text = "Set of key,value pairs encoded as a json dictionary"];
-    required manytoone trust_domain->TrustDomain:kubernetes_configmaps = 3 [db_index = True, null = False, blank = False, help_text = "Trust domain this data resides in"];
+    option description = "Base class for Kubernetes ConfigMaps, Secrets, and similar models";
+
+    optional string name = 1 [
+        help_text = "Name of this data store",
+        blank = False,
+        db_index = False,
+        max_length=256,
+        null = False];
+    optional string data = 2 [
+        help_text = "Set of key,value pairs encoded as a json dictionary",
+        blank = True,
+        db_index = False,
+        null = True];
+    required manytoone trust_domain->TrustDomain:kubernetes_configmaps = 3:1003 [
+        help_text = "Trust domain this data resides in",
+        blank = False,
+        db_index = True,
+        null = False];
 }
 
 message KubernetesConfigMap (KubernetesData) {
+    option description = "A Kubernetes ConfigMap, holding (name, value) data in insecure manner";
 }
 
 message KubernetesSecret (KubernetesData) {
+    option description = "A kubernetes Secret, hodling (name, value) data in a secure manner";
 }
 
 message KubernetesSecretVolumeMount (XOSBase) {
-    required manytoone secret->KubernetesSecret:kubernetes_secret_volume_mounts = 1 [db_index = True, null = False, blank = False, help_text = "Secret to mount"];
-    required manytoone service_instance->KubernetesServiceInstance:kubernetes_secret_volume_mounts = 2 [db_index = True, null = False, blank = False, help_text = "Service instance in which to mount secret"];
-    optional string mount_path = 3 [max_length=256, db_index = False, null = False, blank = False, help_text = "Path to mount secret"];
-    optional string sub_path = 4 [max_length=1024, db_index = False, null = True, blank = True, help_text = "Subpath within secret to mount"];
+    option description = "Mounts a KubernetesSecret to a KubernetesServiceInstance";
+
+    required manytoone secret->KubernetesSecret:kubernetes_secret_volume_mounts = 1:1001 [
+        help_text = "Secret to mount",
+        blank = False,
+        db_index = True,
+        null = False];
+    required manytoone service_instance->KubernetesServiceInstance:kubernetes_secret_volume_mounts = 2 [
+        help_text = "Service instance in which to mount secret",
+        blank = False,
+        db_index = True,
+        null = False];
+    optional string mount_path = 3 [
+        help_text = "Path to mount secret",
+        blank = False,
+        db_index = False,
+        max_length=256,
+        null = False];
+    optional string sub_path = 4 [
+        help_text = "Subpath within secret to mount",
+        blank = True,
+        db_index = False,
+        max_length=1024,
+        null = True];
 }
 
 message KubernetesConfigVolumeMount (XOSBase) {
-    required manytoone config->KubernetesConfigMap:kubernetes_config_voume_mounts = 1 [db_index = True, null = False, blank = False, help_text = "Config to mount"];
-    required manytoone service_instance->KubernetesServiceInstance:kubernetes_config_volume_mounts = 2 [db_index = True, null = False, blank = False, help_text = "Service instance in which to mount config"];
-    optional string mount_path = 3 [max_length=1024, db_index = False, null = False, blank = False, help_text = "Path to mount secret"];
-    optional string sub_path = 4 [max_length=1024, db_index = False, null = True, blank = True, help_text = "Subpath within secret to mount"];
+    option description = "Mounts a KubernetesConfigMap to a KubernetesServiceInstance";
+
+    required manytoone config->KubernetesConfigMap:kubernetes_config_voume_mounts = 1:1001 [
+        help_text = "Config to mount",
+        blank = False,
+        db_index = True,
+        null = False];
+    required manytoone service_instance->KubernetesServiceInstance:kubernetes_config_volume_mounts = 2:1001 [
+        help_text = "Service instance in which to mount config",
+        blank = False,
+        db_index = True,
+        null = False];
+    optional string mount_path = 3 [
+        help_text = "Path to mount secret",
+        blank = False,
+        db_index = False,
+        max_length=1024,
+        null = False];
+    optional string sub_path = 4 [
+        help_text = "Subpath within secret to mount",
+        blank = True,
+        db_index = False,
+        max_length=1024,
+        null = True];
 }
 
